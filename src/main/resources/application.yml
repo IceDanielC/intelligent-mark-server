@@ -1,0 +1,20 @@
+spring:
+  servlet: #设置文件上传大小限制
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/markAI?useUnicode=true&useSSL=false&characterEncoding=utf8
+    username: root
+    password: CYB20011001
+    type: com.alibaba.druid.pool.DruidDataSource
+
+server: #设置文件上传大小限制
+  tomcat:
+    max-swallow-size: 100MB
+  port: 8081
+
+mybatis-plus:
+  type-aliases-package: com.cyb.mongodb.pojo # 别名扫描包
+  # mapper-locations: mybatisPlus定义好了已经

@@ -1,0 +1,36 @@
+spring:
+  data:
+    mongodb:
+      host: mongo
+      database: admin
+      username: admin
+      password: admin
+  servlet: #设置文件上传大小限制
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/website?useUnicode=true&useSSL=false&characterEncoding=utf8
+    username: root
+    password: CYB20011001
+    type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    host: redis
+    port: 6379
+    password: CYB20011001
+
+# minio 文件存储配置信息
+minio:
+  endpoint: http://120.25.179.82:9000 #这里不能写minio，只能写服务器的具体ip！！！
+  accesskey: minioadmin
+  secretKey: minioadmin
+
+server: #设置文件上传大小限制
+  tomcat:
+    max-swallow-size: 100MB
+  port: 8082
+
+mybatis-plus:
+  type-aliases-package: com.cyb.mongodb.pojo # 别名扫描包
+  # mapper-locations: mybatisPlus定义好了已经
