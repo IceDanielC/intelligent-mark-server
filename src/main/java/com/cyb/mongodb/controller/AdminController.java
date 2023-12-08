@@ -1,9 +1,7 @@
 package com.cyb.mongodb.controller;
 
-import com.cyb.mongodb.dto.DoubleToken;
-import com.cyb.mongodb.dto.ExpireException;
-import com.cyb.mongodb.dto.Result;
-import com.cyb.mongodb.dto.UnloginException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.cyb.mongodb.dto.*;
 import com.cyb.mongodb.pojo.Admin;
 import com.cyb.mongodb.service.AdminService;
 import com.cyb.mongodb.utils.JwtUtil;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -37,7 +36,7 @@ public class AdminController {
             response.setHeader("authorization", jwt);
             //列出了哪些首部可以作为响应的一部分暴露给外部,可以在跨域请求的情况下获取jwt的值
             response.setHeader("Access-Control-Expose-Headers", "authorization");
-            return Result.success(new DoubleToken(jwt,freshToken));
+            return Result.success(new LoginInfo(jwt, freshToken, user.getUsername()));
         }
         return Result.fail("用户名或密码错误");
     }
@@ -50,6 +49,38 @@ public class AdminController {
         String userId = (String) JwtUtil.getClaimsBody(jwt).get("sub");
         adminService.update().eq("id", Integer.parseInt(userId)).set("password", password).update();
         return Result.success();
+    }
+
+    // 获取所有用户, 可根据角色名称进行模糊查询
+    @GetMapping("/userList")
+    public Result getUserList(@RequestParam("username")String username){
+        if(username.isEmpty()) {
+            List<Admin> userList = adminService.list();
+            return Result.success(userList);
+        }else {
+            QueryWrapper<Admin> adminQueryWrapper = new QueryWrapper<>();
+            adminQueryWrapper.like("username",username);
+            return Result.success(adminService.list(adminQueryWrapper));
+        }
+    }
+
+    @PostMapping("/update/user")
+    public Result updateUser(@RequestBody Admin user){
+        if(user.getId() == null){
+            adminService.save(user);
+        }else {
+            adminService.updateById(user);
+        }
+        return Result.success();
+    }
+
+    @DeleteMapping("/user/{id}")
+    public Result deleteUser(@PathVariable("id")Integer userId){
+        if(adminService.removeById(userId)) {
+            return Result.success();
+        }else{
+            return Result.fail("删除失败");
+        }
     }
 
     //freshToken实现无感刷新
@@ -75,7 +106,7 @@ public class AdminController {
         //重新获取access_token和fresh_token
         String accessToken = JwtUtil.getToken(Long.valueOf(userId));
         String freshToken = JwtUtil.getFreshToken(Long.valueOf(userId));
-        return Result.success(new DoubleToken(accessToken,freshToken));
+        return Result.success(new DoubleToken(accessToken, freshToken));
     }
 
 }

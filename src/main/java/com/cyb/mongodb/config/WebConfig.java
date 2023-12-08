@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/bulletin/**");  // 指定拦截器链应该应用于哪些URL路径
+                .addPathPatterns("/bulletin/**").addPathPatterns("/admin/userList");  // 指定拦截器链应该应用于哪些URL路径
     }
 
 }
