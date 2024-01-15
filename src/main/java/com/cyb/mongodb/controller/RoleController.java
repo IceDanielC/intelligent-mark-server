@@ -5,9 +5,7 @@ import com.cyb.mongodb.pojo.Role;
 import com.cyb.mongodb.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +25,27 @@ public class RoleController {
             r.setMenuList(r.getMenus().split(","));
        }
        return Result.success(roleList);
+    }
+
+    // 新增或修改角色
+    @PostMapping("/update")
+    public Result updateRole(@RequestBody Role role){
+        if(role.getId() == null){
+            StringBuilder menus = new StringBuilder();
+            for(String menu : role.getMenuList()){
+                menus.append(menu).append(",");
+            }
+            role.setMenus(String.valueOf(menus));
+            roleService.save(role);
+        }else{
+            StringBuilder menus = new StringBuilder();
+            for(String menu : role.getMenuList()){
+                menus.append(menu).append(",");
+            }
+            role.setMenus(String.valueOf(menus));
+            roleService.updateById(role);
+        }
+        return Result.success();
     }
 
 }

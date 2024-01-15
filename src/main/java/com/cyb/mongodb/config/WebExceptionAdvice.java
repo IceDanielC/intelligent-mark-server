@@ -31,6 +31,6 @@ public class WebExceptionAdvice {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result handlerLogin(){
-        return Result.fail(401,"用户名密码不能为空！");
+        return Result.fail(400,"JSON格式错误");
     }
 }
