@@ -12,7 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -38,9 +42,29 @@ public class DatasetController {
                                         @RequestParam(defaultValue = "10") int size) {
 
         Page<Dataset> page = new Page<>(current, size);
+        List<Dataset> datasets = datasetService.getBaseMapper()
+                .selectList(new QueryWrapper<Dataset>().eq("username", username));
+        // Process the fetched datasets and group them by 'name'
+        Map<String, List<Dataset>> groupedDatasets = datasets.stream().collect(Collectors.groupingBy(Dataset::getName));
+        List<Dataset> processedDatasets = new ArrayList<>();
+        for (Map.Entry<String, List<Dataset>> entry : groupedDatasets.entrySet()) {
+            List<Dataset> versions = entry.getValue();
+            if (versions.size() > 1) {
+                // Sort the versions to ensure V1 is first
+                versions.sort(Comparator.comparing(Dataset::getVersion));
+                // Set the children for V1 dataset
+                Dataset v1Dataset = versions.get(0);
+                v1Dataset.setChildren(versions.subList(1, versions.size()));
+                processedDatasets.add(v1Dataset);
+            } else {
+                // Only one version available, add it directly
+                processedDatasets.add(versions.get(0));
+            }
+        }
         // 使用 MyBatis-Plus 的分页查询方法
         IPage<Dataset> datasetPage = datasetService
                 .page(page, new QueryWrapper<Dataset>().eq("username", username));
+        datasetPage.setRecords(processedDatasets);
         return Result.success(datasetPage);
     }
 
