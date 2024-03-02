@@ -133,6 +133,12 @@ public class DatasetController {
         Dataset dataset = datasetService
                 .getOne(new QueryWrapper<Dataset>().eq("id", imageList.get(0).getDatasetId()));
         dataset.setImgNumber(dataset.getImgNumber()+imageList.size());
+        // 更新总大小
+        int totalSize = dataset.getSize();
+        for (Image image : imageList) {
+            totalSize += image.getSize();
+        }
+        dataset.setSize(totalSize);
         datasetService.updateById(dataset);
         if(success) return Result.success();
         return Result.fail("上传失败");
@@ -152,6 +158,8 @@ public class DatasetController {
         // 使用SimpleDateFormat对象将时间格式化为指定格式
         String currentTime = sdf.format(date);
         dataset.setCreateTime(currentTime);
+
+        dataset.setSize(0);
         boolean save = datasetService.save(dataset);
         return Result.success(save);
     }

@@ -56,6 +56,8 @@ public class ImageController {
             if(image.getIsAnnotate().equals("true")){
                 dataset.setAnnotatedNumber(dataset.getAnnotatedNumber()-1);
             }
+            // 更新总大小
+            dataset.setSize(dataset.getSize() - image.getSize());
             datasetService.updateById(dataset);
             return Result.success();
         }

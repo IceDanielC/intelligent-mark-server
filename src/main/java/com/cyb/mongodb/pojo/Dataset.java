@@ -28,6 +28,7 @@ public class Dataset {
     private String module;
     private String savePlace;
     private String createTime;
+    private Integer size;
     @TableField(exist = false)
     private List<Dataset> children;
 
