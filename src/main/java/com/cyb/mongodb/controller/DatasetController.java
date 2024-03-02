@@ -14,11 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @Slf4j
@@ -67,6 +70,16 @@ public class DatasetController {
                 processedDatasets.add(versions.get(0));
             }
         }
+        // 按照时间降序排列
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        processedDatasets.sort((o1, o2) ->
+        {
+            try {
+                return Math.toIntExact(simpleDateFormat.parse(o2.getCreateTime()).getTime() / 10000 - simpleDateFormat.parse(o1.getCreateTime()).getTime() / 10000);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        });
         // 使用 MyBatis-Plus 的分页查询方法
         IPage<Dataset> datasetPage = datasetService
                 .page(page, new QueryWrapper<Dataset>().eq("username", username));
@@ -132,7 +145,24 @@ public class DatasetController {
         dataset.setImgNumber(0);
         Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", dataset.getUsername()));
         dataset.setUserId(user.getId());
+        // 创建一个SimpleDateFormat对象，用于格式化时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // 获取系统当前时间
+        Date date = new Date();
+        // 使用SimpleDateFormat对象将时间格式化为指定格式
+        String currentTime = sdf.format(date);
+        dataset.setCreateTime(currentTime);
         boolean save = datasetService.save(dataset);
         return Result.success(save);
+    }
+
+    // 删除数据集
+    @DeleteMapping("/delete/{datasetId}")
+    public Result deleteDatasetById(@PathVariable("datasetId") Integer datasetId){
+        if(datasetService.removeById(datasetId)){
+            return Result.success();
+        }else{
+            return Result.fail(405,"删除失败");
+        }
     }
 }
