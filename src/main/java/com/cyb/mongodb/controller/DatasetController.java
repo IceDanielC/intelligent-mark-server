@@ -35,15 +35,17 @@ public class DatasetController {
         return Result.success(datasetList);
     }
 
-    //分页获取登陆用户的所有数据集
+    //分页获取登陆用户的所有数据集（含模糊查询）
     @GetMapping("/user/page")
     public Result getDatasetPagesByUser(@RequestParam("username")String username,
                                         @RequestParam(defaultValue = "1") int current, // 默认当前页为第1页
-                                        @RequestParam(defaultValue = "10") int size) {
+                                        @RequestParam(defaultValue = "10") int size,
+                                        @RequestParam(defaultValue = "") String nameKeyword) {
 
         Page<Dataset> page = new Page<>(current, size);
         List<Dataset> datasets = datasetService.getBaseMapper()
-                .selectList(new QueryWrapper<Dataset>().eq("username", username));
+                .selectList(new QueryWrapper<Dataset>().eq("username", username)
+                        .like("name", nameKeyword));
         // Process the fetched datasets and group them by 'name'
         Map<String, List<Dataset>> groupedDatasets = datasets.stream().collect(Collectors.groupingBy(Dataset::getName));
         List<Dataset> processedDatasets = new ArrayList<>();
@@ -64,7 +66,10 @@ public class DatasetController {
         // 使用 MyBatis-Plus 的分页查询方法
         IPage<Dataset> datasetPage = datasetService
                 .page(page, new QueryWrapper<Dataset>().eq("username", username));
-        datasetPage.setRecords(processedDatasets);
+        datasetPage.setTotal(processedDatasets.size());
+        datasetPage.setRecords(processedDatasets
+                .subList(size*(current-1), Math.min(size*current, processedDatasets.size())));
+
         return Result.success(datasetPage);
     }
 
