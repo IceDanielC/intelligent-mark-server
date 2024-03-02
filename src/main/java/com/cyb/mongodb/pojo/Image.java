@@ -20,5 +20,6 @@ public class Image {
     private String name;
     private String isAnnotate;
     private String isValidated;
+    private Integer size;
 
 }

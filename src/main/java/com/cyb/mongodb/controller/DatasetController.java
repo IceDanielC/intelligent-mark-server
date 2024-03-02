@@ -125,7 +125,7 @@ public class DatasetController {
         return Result.success(imageList);
     }
 
-    // 导入图片
+    // 向数据集中导入图片
     @PostMapping("/upload/images")
     public Result uploadImages(@RequestBody List<Image> imageList){
         boolean success = imageService.saveBatch(imageList);
