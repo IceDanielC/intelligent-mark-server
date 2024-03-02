@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cyb.mongodb.dto.Result;
+import com.cyb.mongodb.pojo.Admin;
 import com.cyb.mongodb.pojo.Dataset;
 import com.cyb.mongodb.pojo.Image;
+import com.cyb.mongodb.service.AdminService;
 import com.cyb.mongodb.service.DatasetService;
 import com.cyb.mongodb.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ public class DatasetController {
     private DatasetService datasetService;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private AdminService adminService;
 
     //获取登陆用户的所有数据集
     @GetMapping("/user")
@@ -119,5 +123,16 @@ public class DatasetController {
         datasetService.updateById(dataset);
         if(success) return Result.success();
         return Result.fail("上传失败");
+    }
+
+    // 新增数据集
+    @PostMapping("/create")
+    public Result createDataset(@RequestBody Dataset dataset){
+        dataset.setAnnotatedNumber(0);
+        dataset.setImgNumber(0);
+        Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", dataset.getUsername()));
+        dataset.setUserId(user.getId());
+        boolean save = datasetService.save(dataset);
+        return Result.success(save);
     }
 }

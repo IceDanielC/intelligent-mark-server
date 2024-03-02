@@ -25,6 +25,8 @@ public class Dataset {
     private String annotateType;
     private Integer imgNumber;
     private Integer annotatedNumber;
+    private String module;
+    private String savePlace;
     @TableField(exist = false)
     private List<Dataset> children;
 
