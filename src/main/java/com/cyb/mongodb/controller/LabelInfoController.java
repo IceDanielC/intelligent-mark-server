@@ -31,8 +31,14 @@ public class LabelInfoController {
 
     //获取某张图片中的所有标签
     @GetMapping("/imageLabels")
-    public Result getLabelsByImage(@RequestParam("imageUrl") String url){
-        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", url));
+    public Result getLabelsByImage(@RequestParam("imageUrl") String url,
+                                   @RequestParam("username")String username,
+                                   @RequestParam("datasetName")String datasetName,
+                                   @RequestParam("version")String version){
+        // 确定图片所在数据集
+        Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>().eq("username", username)
+                .eq("name", datasetName).eq("version", version));
+        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", url).eq("dataset_id",dataset.getId()));
         if(image == null) return Result.success(new ArrayList<>());
         List<LabelInfo> labels = labelInfoService.list(new QueryWrapper<LabelInfo>().
                 eq("image_id", image.getId()));

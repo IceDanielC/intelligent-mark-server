@@ -1,5 +1,6 @@
 package com.cyb.mongodb.controller;
 
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -34,6 +35,22 @@ public class DatasetController {
     private ImageService imageService;
     @Autowired
     private AdminService adminService;
+
+    public void initNewDataset(Dataset dataset){
+        dataset.setAnnotatedNumber(0);
+        dataset.setImgNumber(0);
+        Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", dataset.getUsername()));
+        dataset.setUserId(user.getId());
+        // 创建一个SimpleDateFormat对象，用于格式化时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // 获取系统当前时间
+        Date date = new Date();
+        // 使用SimpleDateFormat对象将时间格式化为指定格式
+        String currentTime = sdf.format(date);
+        dataset.setCreateTime(currentTime);
+
+        dataset.setSize(0);
+    }
 
     //获取登陆用户的所有数据集
     @GetMapping("/user")
@@ -147,19 +164,11 @@ public class DatasetController {
     // 新增数据集
     @PostMapping("/create")
     public Result createDataset(@RequestBody Dataset dataset){
-        dataset.setAnnotatedNumber(0);
-        dataset.setImgNumber(0);
-        Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", dataset.getUsername()));
-        dataset.setUserId(user.getId());
-        // 创建一个SimpleDateFormat对象，用于格式化时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        // 获取系统当前时间
-        Date date = new Date();
-        // 使用SimpleDateFormat对象将时间格式化为指定格式
-        String currentTime = sdf.format(date);
-        dataset.setCreateTime(currentTime);
-
-        dataset.setSize(0);
+        if(datasetService.count(new QueryWrapper<Dataset>().eq("name",dataset.getName())
+                .eq("username",dataset.getUsername())) > 0){
+            return Result.fail(405,"数据集名称已存在");
+        }
+        initNewDataset(dataset);
         boolean save = datasetService.save(dataset);
         return Result.success(save);
     }
@@ -172,5 +181,43 @@ public class DatasetController {
         }else{
             return Result.fail(405,"删除失败");
         }
+    }
+
+    // 根据数据集名称获取当前最高版本
+    @GetMapping("/latestVersion/{datasetName}")
+    public Result getLatestVersion(@PathVariable("datasetName") String datasetName){
+        List<Dataset> datasetList = datasetService.list(new QueryWrapper<Dataset>().eq("name", datasetName));
+        Dataset dataset = datasetList.get(datasetList.size() - 1);
+        return Result.success(dataset.getVersion());
+    }
+
+    // 新增数据集版本
+    @PostMapping("/newVersion")
+    public Result createDatasetVersion(@RequestBody Dataset dataset,
+                                       @RequestParam("extends")Boolean isExtends,
+                                       @RequestParam("historyVersion")String historyVersion){
+        if(!isExtends){
+            // 不继承之前的数据集
+            initNewDataset(dataset);
+            datasetService.save(dataset);
+        }else{
+            // 继承之前版本的数据集
+            Dataset preDataset = datasetService.getOne(new QueryWrapper<Dataset>().eq("username", dataset.getUsername())
+                    .eq("name", dataset.getName()).eq("version", historyVersion));
+            List<Image> images = imageService.list(new QueryWrapper<Image>().eq("dataset_id", preDataset.getId()));
+            // 新建数据集
+            initNewDataset(dataset);
+            datasetService.saveOrUpdate(dataset);
+            Dataset savedDataset = datasetService.getOne(new QueryWrapper<Dataset>().eq("name", dataset.getName())
+                    .eq("username", dataset.getUsername()).eq("version", dataset.getVersion()));
+            for (Image i : images){
+                i.setIsAnnotate("false");
+                i.setId(null);
+                i.setDatasetId(savedDataset.getId());
+            }
+            // 调用上传图片的接口更新数据集-图片联动数据
+            uploadImages(images);
+        }
+        return Result.success("新增版本成功");
     }
 }

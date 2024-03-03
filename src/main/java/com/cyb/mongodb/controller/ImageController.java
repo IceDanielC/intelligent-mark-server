@@ -24,16 +24,28 @@ public class ImageController {
 
     // 查看某张图片是否已经标注过了
     @GetMapping("/isAnnotated")
-    public Result isImageAnnotated(@RequestParam("imageUrl")String imageUrl){
-        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", imageUrl));
+    public Result isImageAnnotated(@RequestParam("imageUrl")String imageUrl,
+                                   @RequestParam("username")String username,
+                                   @RequestParam("datasetName")String datasetName,
+                                   @RequestParam("version")String version){
+        // 确定图片所在数据集
+        Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>().eq("username", username)
+                .eq("name", datasetName).eq("version", version));
+        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", imageUrl).eq("dataset_id",dataset.getId()));
         if(image == null) return Result.fail("图片不存在");
         return Result.success(Boolean.parseBoolean(image.getIsAnnotate()));
     }
 
     // 查看某张图片是否为有效数据
     @GetMapping("/isValidated")
-    public Result isValidated(@RequestParam("imageUrl")String imageUrl){
-        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", imageUrl));
+    public Result isValidated(@RequestParam("imageUrl")String imageUrl,
+                              @RequestParam("username")String username,
+                              @RequestParam("datasetName")String datasetName,
+                              @RequestParam("version")String version){
+        // 确定图片所在数据集
+        Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>().eq("username", username)
+                .eq("name", datasetName).eq("version", version));
+        Image image = imageService.getOne(new QueryWrapper<Image>().eq("url", imageUrl).eq("dataset_id",dataset.getId()));
         if(image == null) return Result.fail("图片不存在");
         return Result.success(Boolean.parseBoolean(image.getIsValidated()));
     }

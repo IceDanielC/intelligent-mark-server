@@ -45,4 +45,11 @@ public class LabelGroupController {
         labelGroupService.save(labelGroup);
         return Result.success();
     }
+
+    // 删除标签
+    @DeleteMapping("/delete/{labelId}")
+    public Result deleteDatasetLabel(@PathVariable("labelId")Integer labelId){
+        labelGroupService.removeById(labelId);
+        return Result.success();
+    }
 }
