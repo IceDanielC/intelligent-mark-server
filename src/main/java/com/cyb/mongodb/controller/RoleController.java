@@ -1,7 +1,10 @@
 package com.cyb.mongodb.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cyb.mongodb.dto.Result;
+import com.cyb.mongodb.pojo.Admin;
 import com.cyb.mongodb.pojo.Role;
+import com.cyb.mongodb.service.AdminService;
 import com.cyb.mongodb.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ public class RoleController {
 
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private AdminService adminService;
 
     //获取所有角色及权限
     @GetMapping("/list")
@@ -46,6 +51,14 @@ public class RoleController {
             roleService.updateById(role);
         }
         return Result.success();
+    }
+
+    // 查询用户权限及菜单
+    @GetMapping("/menus/{username}")
+    public Result getRoleByName(@PathVariable("username")String username){
+        Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", username));
+        Role role = roleService.getOne(new QueryWrapper<Role>().eq("role", user.getRole()));
+        return Result.success(role.getMenus());
     }
 
 }
