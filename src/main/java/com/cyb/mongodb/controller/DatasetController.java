@@ -55,7 +55,8 @@ public class DatasetController {
     //获取登陆用户的所有数据集
     @GetMapping("/user")
     public Result getDatasetsByUser(@RequestParam("username")String username){
-        List<Dataset> datasetList = datasetService.list(new QueryWrapper<Dataset>().eq("username", username));
+        List<Dataset> datasetList = datasetService.list(new QueryWrapper<Dataset>().eq("username", username)
+                .orderByDesc("create_time"));
         return Result.success(datasetList);
     }
 
