@@ -85,4 +85,12 @@ public class UserLabelController {
         userLabelService.removeById(userId);
         return Result.success();
     }
+
+    // 获取用户的标签组
+    @GetMapping("/{username}/labelGroup")
+    public Result labelGroupList(@PathVariable("username") String username){
+        Admin user = adminService.getOne(new QueryWrapper<Admin>().eq("username", username));
+        List<UserLabel> userLabelList = userLabelService.list(new QueryWrapper<UserLabel>().eq("user_id", user.getId()));
+        return Result.success(userLabelList);
+    }
 }
