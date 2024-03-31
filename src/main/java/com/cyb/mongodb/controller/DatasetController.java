@@ -109,22 +109,24 @@ public class DatasetController {
     }
 
     //根据数据集名称和version获取下面的所有图片
-    @GetMapping("/images/{datasetName}/{version}")
-    public Result getDatasetImages(@PathVariable("datasetName")String datasetName,
+    @GetMapping("/images/{username}/{datasetName}/{version}")
+    public Result getDatasetImages(@PathVariable("username")String username,
+                                   @PathVariable("datasetName")String datasetName,
                                    @PathVariable("version")String version){
         Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>()
-                .eq("name", datasetName).eq("version", version));
+                .eq("name", datasetName).eq("version", version).eq("username",username));
         if(dataset == null) return Result.success(null);
         List<Image> imageList = imageService.list(new QueryWrapper<Image>().eq("dataset_id", dataset.getId()));
         return Result.success(imageList);
     }
 
     //根据数据集名称和version获取下面的所有已标注图片
-    @GetMapping("/images/annotated/{datasetName}/{version}")
-    public Result getDatasetAnnotatedImages(@PathVariable("datasetName")String datasetName,
-                                   @PathVariable("version")String version){
+    @GetMapping("/images/annotated/{username}/{datasetName}/{version}")
+    public Result getDatasetAnnotatedImages(@PathVariable("username")String username,
+                                            @PathVariable("datasetName")String datasetName,
+                                            @PathVariable("version")String version){
         Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>()
-                .eq("name", datasetName).eq("version", version));
+                .eq("name", datasetName).eq("version", version).eq("username",username));
         if(dataset == null) return Result.success(null);
         List<Image> imageList = imageService.list(new QueryWrapper<Image>()
                 .eq("dataset_id", dataset.getId()).eq("is_annotate","true"));
@@ -132,11 +134,12 @@ public class DatasetController {
     }
 
     //根据数据集名称和version获取下面的所有未标注图片
-    @GetMapping("/images/unAnnotated/{datasetName}/{version}")
-    public Result getDatasetUnAnnotatedImages(@PathVariable("datasetName")String datasetName,
+    @GetMapping("/images/unAnnotated/{username}/{datasetName}/{version}")
+    public Result getDatasetUnAnnotatedImages(@PathVariable("username")String username,
+                                              @PathVariable("datasetName")String datasetName,
                                             @PathVariable("version")String version){
         Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>()
-                .eq("name", datasetName).eq("version", version));
+                .eq("name", datasetName).eq("version", version).eq("username",username));
         if(dataset == null) return Result.success(null);
         List<Image> imageList = imageService.list(new QueryWrapper<Image>()
                 .eq("dataset_id", dataset.getId()).eq("is_annotate","false"));

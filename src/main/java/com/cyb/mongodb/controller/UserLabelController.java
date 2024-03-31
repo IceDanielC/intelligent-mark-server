@@ -70,7 +70,8 @@ public class UserLabelController {
             String currentTime = sdf.format(date);
             userLabel.setCreateTime(currentTime);
             userLabel.setUserId(user.getId());
-            if(userLabelService.count(new QueryWrapper<UserLabel>().eq("group_name",groupName))>=1){
+            if(userLabelService.count(new QueryWrapper<UserLabel>().eq("group_name",groupName)
+                    .eq("user_id",user.getId()))>=1){
                 return Result.fail(10000,"名称已存在");
             }
             userLabelService.save(userLabel);

@@ -29,11 +29,12 @@ public class LabelGroupController {
 
 
     // 获取某个数据集-version下所有的label
-    @GetMapping("/dataset/{datasetName}/{version}")
-    public Result getDatasetLabels(@PathVariable("datasetName")String datasetName,
+    @GetMapping("/dataset/{username}/{datasetName}/{version}")
+    public Result getDatasetLabels(@PathVariable("username")String username,
+                                   @PathVariable("datasetName")String datasetName,
                                    @PathVariable("version")String version){
         Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>()
-                .eq("name", datasetName).eq("version", version));
+                .eq("name", datasetName).eq("version", version).eq("username",username));
         if(dataset == null) return Result.fail(404,"未找到对于数据集");
         List<LabelGroup> labelGroups = labelGroupService.
                 list(new QueryWrapper<LabelGroup>().eq("dataset_id", dataset.getId()));
@@ -41,12 +42,13 @@ public class LabelGroupController {
     }
 
     // 标签栏新增标签
-    @PostMapping("/add/{datasetName}/{version}")
-    public Result addDatasetLabel(@PathVariable("datasetName")String datasetName,
+    @PostMapping("/add/{username}/{datasetName}/{version}")
+    public Result addDatasetLabel(@PathVariable("username")String username,
+                                  @PathVariable("datasetName")String datasetName,
                                   @PathVariable("version")String version,
                                   @RequestBody LabelGroup labelGroup){
         Dataset dataset = datasetService.getOne(new QueryWrapper<Dataset>()
-                .eq("name", datasetName).eq("version", version));
+                .eq("name", datasetName).eq("version", version).eq("username",username));
         labelGroup.setDatasetId(dataset.getId());
         labelGroupService.save(labelGroup);
         return Result.success();

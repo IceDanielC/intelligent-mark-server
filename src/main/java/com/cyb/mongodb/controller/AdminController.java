@@ -123,7 +123,7 @@ public class AdminController {
         if(adminService.count(new QueryWrapper<Admin>().eq("username",user.getUsername()))>0){
             return Result.fail(10000,"用户名已存在");
         }
-        System.out.println(registerUser);
+        adminService.save(registerUser);
         return Result.success();
     }
 
