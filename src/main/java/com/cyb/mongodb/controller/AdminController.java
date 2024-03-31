@@ -109,5 +109,23 @@ public class AdminController {
         return Result.success(new DoubleToken(accessToken, freshToken));
     }
 
+    // 注册新用户
+    @PostMapping("/createUser")
+    public Result registerUser(@RequestBody RegisterUser user){
+        Admin registerUser = new Admin();
+        if(user.getIsAdmin()){
+            registerUser.setRole("ADMIN");
+        }else{
+            registerUser.setRole("USER");
+        }
+        registerUser.setPassword(user.getPassword());
+        registerUser.setUsername(user.getUsername());
+        if(adminService.count(new QueryWrapper<Admin>().eq("username",user.getUsername()))>0){
+            return Result.fail(10000,"用户名已存在");
+        }
+        System.out.println(registerUser);
+        return Result.success();
+    }
+
 }
 
