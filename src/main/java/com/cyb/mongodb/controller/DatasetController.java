@@ -187,10 +187,13 @@ public class DatasetController {
         }
     }
 
-    // 根据数据集名称获取当前最高版本
-    @GetMapping("/latestVersion/{datasetName}")
-    public Result getLatestVersion(@PathVariable("datasetName") String datasetName){
-        List<Dataset> datasetList = datasetService.list(new QueryWrapper<Dataset>().eq("name", datasetName));
+    // 根据数据集名称,用户名称获取当前最高版本
+    @GetMapping("/latestVersion/{username}/{datasetName}")
+    public Result getLatestVersion(@PathVariable("username") String username,
+                                   @PathVariable("datasetName") String datasetName){
+        List<Dataset> datasetList = datasetService.list(new QueryWrapper<Dataset>()
+                .eq("name", datasetName)
+                .eq("username", username));
         Dataset dataset = datasetList.get(datasetList.size() - 1);
         return Result.success(dataset.getVersion());
     }
