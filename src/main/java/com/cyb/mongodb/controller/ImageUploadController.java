@@ -29,10 +29,10 @@ public class ImageUploadController {
 //        String url = "http://localhost:9090/file/" + originalFilename;
 //        return Result.success(url);
 
-        String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
-        String accessKeyId = "LTAI5t9mYThvjCTGs7TzfTDK";
-        String accessKeySecret = "LA3vYov6A2rDmbn29cST3hQaADY4O3";
-        String bucketName = "mark-ai";
+        String endpoint = "yours";
+        String accessKeyId = "yours";
+        String accessKeySecret = "yours";
+        String bucketName = "yours";
         //获取文件原始名称
         String objectName = file.getOriginalFilename();
         String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + objectName;
