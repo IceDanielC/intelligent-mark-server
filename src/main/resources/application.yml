@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://localhost:3306/markAI?useUnicode=true&useSSL=false&characterEncoding=utf8
     username: root
-    password: CYB20011001
+    password: xxxxxxxx
     type: com.alibaba.druid.pool.DruidDataSource
 
 server: #设置文件上传大小限制
